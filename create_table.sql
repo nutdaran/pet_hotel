@@ -73,7 +73,7 @@ Drop table if exists booking CASCADE;
 CREATE TABLE booking
 (
   booking_id SERIAL PRIMARY KEY,
-  booking_ref CHAR(8) NOT NULL,
+  booking_ref CHAR(7) NOT NULL,
   check_in_date DATE NOT NULL,
   check_out_date DATE NOT NULL,
   price DECIMAL(10,2) NOT NULL,
