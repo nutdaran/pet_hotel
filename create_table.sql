@@ -58,6 +58,7 @@ Drop table if exists room CASCADE;
 CREATE TABLE room
 (
   room_id SERIAL PRIMARY KEY,
+  room_num CHAR(3) NOT NULL,
   room_name VARCHAR(255) NOT NULL,
   status VARCHAR(10) NOT NULL,
   price DECIMAL(10,2) NOT NULL,
