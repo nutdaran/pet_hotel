@@ -73,7 +73,7 @@ VALUES ('Standard Room', '101', 'Occupied', 50.00, 1, 1),
 
 -- Insert the booking table 
 INSERT INTO booking (booking_ref, check_in_date, check_out_date, price, booking_status, customer_id, pet_id, branch_id, room_id)
-VALUES ('A345678', '2024-03-10', '2024-03-15', 300.00, 'Finished',7, 5, 1, 1), -- Nut, Sonya
+VALUES ('A345678', '2024-03-10', '2024-03-15', 300.00, 'Finished',7, 8, 1, 1), -- Nut, Sonya
        ('K678901', '2024-03-11', '2024-03-12', 150.00, 'Finished', 3, 3, 1, 6), -- Chutimon, Puk pik
        ('A123456', '2024-03-25', '2024-03-28', 300.00, 'Arrived', 6, 7, 1, 6), -- Opal, Milo
        ('A234567', '2024-03-27', '2024-03-28', 50.00, 'Arrived', 7,8, 1, 1), -- Nut, Sonya
