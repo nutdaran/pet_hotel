@@ -59,4 +59,24 @@ select * from booking where booking_ref='A123456';
 select change_booking_status('A123456','Finished');
 select * from booking where booking_ref='A123456';
 
--- Search
+-- Create a function to search Booking Ref./ Pet Name/ Owner Name 
+CREATE OR REPLACE FUNCTION search(text TEXT)
+RETURNS TABLE(
+  booking_ref CHAR(8),
+  pet_name VARCHAR(255),
+  owner_name VARCHAR(255)
+) AS $$
+BEGIN
+  RETURN QUERY
+    SELECT b.booking_ref, p.name AS pet_name, c.firstname AS owner_name
+    FROM booking b
+    INNER JOIN pet p ON b.pet_id = p.pet_id
+    INNER JOIN customer c ON b.customer_id = c.customer_id
+    WHERE b.booking_ref LIKE '%' || text || '%' 
+      OR p.name LIKE '%' || text || '%' 
+      OR c.firstname LIKE '%' || text || '%';
+END;
+$$ LANGUAGE plpgsql;
+
+-- Run a function search
+SELECT * FROM search('678');
