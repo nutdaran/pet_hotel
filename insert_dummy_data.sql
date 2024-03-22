@@ -54,22 +54,35 @@ INSERT INTO branch (branch_name, location)
 VALUES ('Branch001', 'Silom, Bangkok'),
        ('Branch002', 'Phuttamonthon sai 4, Nakornpathom');
 
+-- Insert the room_type table 
+INSERT INTO room_type (room_type_name, price, pet_type_id)
+VALUES ('Standard Room', 50.00, 1),
+       ('Superior Room', 75.00, 1),
+       ('Small dog Room', 60.00, 2),
+       ('Medium dog Room', 90.00, 2),
+       ('Large dog Room', 120.00, 2),
+       ('Room AC', 75.00, 3),
+       ('Room Non-AC', 60.00, 3);
+
 -- Insert the room table 
-INSERT INTO room (room_name, room_num, status, price, branch_id, pet_type_id)
-VALUES ('Standard Room', '101', 'Occupied', 50.00, 1, 1),
-       ('Superior Room', '102', 'Available', 75.00, 1, 1),
-       ('Small dog Room', '201', 'Available', 60.00, 1, 2),
-       ('Medium dog Room', '202', 'Occupied', 90.00, 1, 2),
-       ('Large dog Room', '203', 'Available', 120.00, 1, 2),
-       ('Room AC', '301', 'Occupied', 75.00, 1, 3),
-       ('Room Non-AC', '302', 'Occupied', 60.00, 1, 3),
-       ('Standard Room', '101', 'Available', 50.00, 2, 1),
-       ('Superior Room', '102', 'Available', 75.00, 2, 1),
-       ('Small dog Room', '201', 'Available', 60.00, 2, 2),
-       ('Medium dog Room', '202', 'Available', 90.00, 2, 2),
-       ('Large dog Room', '203', 'Available', 120.00, 2, 2),
-       ('Room AC', '303', 'Available', 75.00, 2, 3),
-       ('Room Non-AC', '302', 'Available', 60.00, 2, 3);
+INSERT INTO room (room_num, status, room_type_id, branch_id )
+VALUES ('101','Available', 1, 1),
+	('111','Available', 1, 1),
+	('121','Available', 1, 1),
+	('102','Available', 2, 1),
+	('201','Available', 3, 1),
+	('202','Available', 4, 1),
+	('203','Available', 5, 1),
+	('301','Available', 6, 1),
+	('302','Available', 7, 1),
+	('101','Available', 1, 2),
+	('102','Available', 2, 2),
+	('201','Available', 3, 2),
+	('202','Available', 4, 2),
+	('203','Available', 5, 2),
+	('301','Available', 6, 2),
+	('302','Available', 7, 2);
+	
 
 -- Insert the booking table 
 INSERT INTO booking (booking_ref, check_in_date, check_out_date, price, booking_status, customer_id, pet_id, branch_id, room_id)

@@ -53,19 +53,28 @@ CREATE TABLE branch
   location VARCHAR(255) NOT NULL
 );
 
+-- Create the room_type table 
+Drop table if exists room_type CASCADE;
+CREATE TABLE room_type
+(
+  room_type_id SERIAL PRIMARY KEY,
+  room_type_name VARCHAR(255) NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  pet_type_id INT NOT NULL,
+  FOREIGN KEY (pet_type_id) REFERENCES pet_type(pet_type_id)
+);
+
 -- Create the room table 
 Drop table if exists room CASCADE;
 CREATE TABLE room
 (
   room_id SERIAL PRIMARY KEY,
   room_num CHAR(3) NOT NULL,
-  room_name VARCHAR(255) NOT NULL,
   status VARCHAR(10) NOT NULL,
-  price DECIMAL(10,2) NOT NULL,
+  room_type_id INT NOT NULL,
   branch_id INT NOT NULL,
-  pet_type_id INT NOT NULL,
-  FOREIGN KEY (branch_id) REFERENCES branch(branch_id),
-  FOREIGN KEY (pet_type_id) REFERENCES pet_type(pet_type_id)
+  FOREIGN KEY (room_type_id) REFERENCES room_type(room_type_id),
+  FOREIGN KEY (branch_id) REFERENCES branch(branch_id)
 );
 
 -- Create the booking table 
