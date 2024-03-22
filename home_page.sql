@@ -7,24 +7,33 @@ select count(*) from public.room
 where status ='Occupied' and branch_id = 1;
 
 -- Get Expected Arrival Booking List in Branch 1
-SELECT b.booking_ref as booking_ref, p.name as pet_name, c.firstname as owner_name
+SELECT b.booking_ref, p.name as pet_name, c.firstname as owner_name
 FROM booking b
-
+	
 Inner join pet p on b.pet_id = p.pet_id
 
 Inner join customer c on b.customer_id = c.customer_id
+	
+WHERE b.check_in_date = (
+    SELECT MIN(check_in_date)
+    FROM booking
+    WHERE check_in_date >= '2024-03-28' -- Assume today is 28-03-2024
+) AND b.booking_status = 'Pending' AND b.branch_id = 1; 
 
-where b.check_in_date = '2024-03-28' and b.branch_id = 1; -- Assume today is 28-03-2024
 
 -- Get Expected Departure Booking List in Branch 1
-SELECT b.booking_ref as booking_ref, p.name as pet_name, c.firstname as owner_name
+SELECT b.booking_ref, p.name as pet_name, c.firstname as owner_name
 FROM booking b
-
+	
 Inner join pet p on b.pet_id = p.pet_id
 
 Inner join customer c on b.customer_id = c.customer_id
-
-where b.check_out_date = '2024-03-28' and b.branch_id = 1;
+	
+WHERE b.check_out_date = (
+    SELECT MIN(check_out_date)
+    FROM booking
+    WHERE check_out_date >= '2024-03-28' -- Assume today is 28-03-2024
+) AND b.booking_status = 'Arrived' AND b.branch_id = 1; 
 
 -- create a function to change booking status
 create or replace function change_booking_status(ref TEXT, new_status TEXT)
