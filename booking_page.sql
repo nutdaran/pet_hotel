@@ -65,11 +65,6 @@ BEGIN
       new_branch_id, 
       available_room_id);
 
-  -- Update the room's status to 'Occupied'
-  UPDATE room
-  SET status = 'Occupied'
-  WHERE room_id = available_room_id; 
-
   -- Commit the transaction if successful
   COMMIT;
 END $$;
@@ -110,3 +105,46 @@ CALL make_booking(
   6,                  -- new_room_type_id
   2                   -- new_branch_id
 );
+
+-- Trigger function: update room status for walk-in booking
+create or replace function change_room_status()
+returns trigger
+language plpgsql
+as $$
+    begin
+    if NEW.check_in_date = current_date then
+        UPDATE room
+        SET status = 'Occupied'
+        WHERE room_id = NEW.room_id;
+    end if;
+
+    return null;
+    end;
+$$;
+
+drop trigger if exists add_walkin_booking_room_status on booking;
+create trigger add_walkin_booking_room_status
+    after insert
+    on booking
+    for each row
+    execute procedure change_room_status();
+
+-- Trigger function: update booking status for walk-in booking
+create or replace function walkin_booking_status()
+returns trigger
+language plpgsql
+as $$
+    begin
+    if NEW.check_in_date = current_date then
+        NEW.booking_status := 'Arrived';
+    end if;
+    return NEW;
+    end;
+$$;
+
+drop trigger if exists add_walkin_booking_booking_status on booking;
+create trigger add_walkin_booking_booking_status
+    before insert
+    on booking
+    for each row
+    execute procedure walkin_booking_status();
