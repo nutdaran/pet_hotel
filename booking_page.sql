@@ -82,8 +82,8 @@ CALL make_booking(
   'brown',            -- pet_color
   6,                  -- breed_id
   1,                  -- new_pet_type_id
-  '2024-04-01',       -- check_in_date
-  '2024-04-05',       -- check_out_date
+  '2024-03-23',       -- check_in_date
+  '2024-03-27',       -- check_out_date
   2,                  -- new_room_type_id
   1                   -- new_branch_id
 );
@@ -104,6 +104,82 @@ CALL make_booking(
   '2024-04-13',       -- check_out_date
   6,                  -- new_room_type_id
   2                   -- new_branch_id
+);
+
+-- New booking for regular customer and new pet
+CREATE OR REPLACE PROCEDURE make_booking_old_cust(
+  c_id INT,
+  pet_name TEXT,
+  pet_age INT,
+  pet_sex TEXT,
+  pet_color TEXT,
+  breed_id INT,
+  new_pet_type_id INT,
+  check_in_date DATE,
+  check_out_date DATE,
+  new_room_type_id INT,
+  new_branch_id INT
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  new_pet_id INT;
+  total_date INT;
+  room_type_name_var VARCHAR(255);
+  price_var DECIMAL(10, 2);
+  total_price DECIMAL(10, 2);
+  available_room_id INT;
+BEGIN
+  -- Add pet information to pet table
+  INSERT INTO pet (name, age, sex, color, breed_id, pet_type_id, customer_id)
+  VALUES (pet_name, pet_age, pet_sex, pet_color, breed_id, new_pet_type_id, c_id)
+  RETURNING pet_id INTO new_pet_id;
+
+  -- Retrieve room type name and price
+  SELECT room_type_name, price INTO room_type_name_var, price_var
+  FROM room_type
+  WHERE pet_type_id = new_pet_type_id;
+
+  -- Get total date from check-in-date and check-out-date
+  total_date := CAST(DATE_PART('day', check_out_date) - DATE_PART('day', check_in_date) + 1 AS INTEGER);
+
+  -- Calculate the total price by multiplying total date with price per night
+  total_price := price_var * total_date;
+
+  -- Get a room_id and room_num --> available room(s)
+  SELECT room_id INTO available_room_id FROM room
+  WHERE branch_id = new_branch_id AND room_type_id = new_room_type_id AND status = 'Available'
+  ORDER BY RANDOM()
+  LIMIT 1;
+
+  -- Insert a booking
+  INSERT INTO booking (booking_ref, check_in_date, check_out_date, price, booking_status, customer_id, pet_id, branch_id, room_id)
+  VALUES (LPAD(FLOOR(random() * (POWER(10, 8) - 1))::text || SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', floor(random() * 36)::int + 1, 1), 7, '0'),
+      check_in_date,
+      check_out_date,
+      total_price,
+      'Pending',
+      c_id,
+      new_pet_id,
+      new_branch_id,
+      available_room_id);
+
+  -- Commit the transaction if successful
+  COMMIT;
+END $$;
+
+CALL make_booking_old_cust(
+  22,             -- customer_id
+  'Lala',         -- pet_name
+  5,                  -- pet_age
+  'F',                -- pet_sex
+  'White',           -- pet_color
+  1,                 -- breed_id
+  1,                  -- new_pet_type_id
+  '2024-04-06',       -- check_in_date
+  '2024-04-30',       -- check_out_date
+  1,                  -- new_room_type_id
+  1                   -- new_branch_id
 );
 
 -- Trigger function: update room status for walk-in booking
@@ -148,3 +224,4 @@ create trigger add_walkin_booking_booking_status
     on booking
     for each row
     execute procedure walkin_booking_status();
+
