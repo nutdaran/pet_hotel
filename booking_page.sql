@@ -27,14 +27,19 @@ DECLARE
   available_room_id INT;
 BEGIN
   -- Add owner information to customer table
-  INSERT INTO customer (firstname, lastname, tel_no, address)
-  VALUES (customer_firstname, customer_lastname, customer_tel_no, customer_address)
-  RETURNING customer_id INTO new_customer_id;
+  select * from insert_customer(customer_firstname,
+                                customer_lastname,
+                                customer_tel_no,
+                                customer_address) into new_customer_id;
 
   -- Add pet information to pet table
-  INSERT INTO pet (name, age, sex, color, breed_id, pet_type_id, customer_id)
-  VALUES (pet_name, pet_age, pet_sex, pet_color, breed_id, new_pet_type_id, new_customer_id)
-  RETURNING pet_id INTO new_pet_id;
+  select * from insert_pet(pet_name,
+                           pet_age,
+                           pet_sex,
+                           pet_color,
+                           breed_id,
+                           new_pet_type_id,
+                           new_customer_id) into new_pet_id;
 
   -- Retrieve room type name and price
   SELECT room_type_name, price INTO room_type_name_var, price_var
@@ -106,81 +111,82 @@ CALL make_booking(
   2                   -- new_branch_id
 );
 
--- New booking for regular customer and new pet
-CREATE OR REPLACE PROCEDURE make_booking_old_cust(
-  c_id INT,
-  pet_name TEXT,
-  pet_age INT,
-  pet_sex TEXT,
-  pet_color TEXT,
-  breed_id INT,
-  new_pet_type_id INT,
-  check_in_date DATE,
-  check_out_date DATE,
-  new_room_type_id INT,
-  new_branch_id INT
-)
-LANGUAGE plpgsql
-AS $$
-DECLARE
-  new_pet_id INT;
-  total_date INT;
-  room_type_name_var VARCHAR(255);
-  price_var DECIMAL(10, 2);
-  total_price DECIMAL(10, 2);
-  available_room_id INT;
-BEGIN
-  -- Add pet information to pet table
-  INSERT INTO pet (name, age, sex, color, breed_id, pet_type_id, customer_id)
-  VALUES (pet_name, pet_age, pet_sex, pet_color, breed_id, new_pet_type_id, c_id)
-  RETURNING pet_id INTO new_pet_id;
-
-  -- Retrieve room type name and price
-  SELECT room_type_name, price INTO room_type_name_var, price_var
-  FROM room_type
-  WHERE pet_type_id = new_pet_type_id;
-
-  -- Get total date from check-in-date and check-out-date
-  total_date := CAST(DATE_PART('day', check_out_date) - DATE_PART('day', check_in_date) + 1 AS INTEGER);
-
-  -- Calculate the total price by multiplying total date with price per night
-  total_price := price_var * total_date;
-
-  -- Get a room_id and room_num --> available room(s)
-  SELECT room_id INTO available_room_id FROM room
-  WHERE branch_id = new_branch_id AND room_type_id = new_room_type_id AND status = 'Available'
-  ORDER BY RANDOM()
-  LIMIT 1;
-
-  -- Insert a booking
-  INSERT INTO booking (booking_ref, check_in_date, check_out_date, price, booking_status, customer_id, pet_id, branch_id, room_id)
-  VALUES (LPAD(FLOOR(random() * (POWER(10, 8) - 1))::text || SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', floor(random() * 36)::int + 1, 1), 7, '0'),
-      check_in_date,
-      check_out_date,
-      total_price,
-      'Pending',
-      c_id,
-      new_pet_id,
-      new_branch_id,
-      available_room_id);
-
-  -- Commit the transaction if successful
-  COMMIT;
-END $$;
-
-CALL make_booking_old_cust(
-  22,             -- customer_id
-  'Lala',         -- pet_name
-  5,                  -- pet_age
+-- same customer but new pet
+CALL make_booking(
+  'Opal',             -- customer_firstname
+  'Somsongkul',       -- customer_lastname
+  '0000000000',       -- customer_tel_no
+  'BKK',              -- customer_address
+  'Mali',         -- pet_name
+  3,                  -- pet_age
   'F',                -- pet_sex
-  'White',           -- pet_color
-  1,                 -- breed_id
-  1,                  -- new_pet_type_id
-  '2024-04-06',       -- check_in_date
-  '2024-04-30',       -- check_out_date
-  1,                  -- new_room_type_id
+  'black',           -- pet_color
+  11,                 -- breed_id
+  2,                  -- new_pet_type_id
+  '2024-04-05',       -- check_in_date
+  '2024-04-13',       -- check_out_date
+  3,                  -- new_room_type_id
   1                   -- new_branch_id
 );
+
+CREATE OR REPLACE FUNCTION insert_customer(
+    customer_firstname TEXT,
+    customer_lastname TEXT,
+    customer_tel_no TEXT,
+    customer_address TEXT
+)
+RETURNS INT AS
+$$
+DECLARE
+    new_customer_id INT;
+BEGIN
+    -- Check if the customer already exists
+    SELECT customer_id INTO new_customer_id
+    FROM customer
+    WHERE firstname = customer_firstname
+    AND lastname = customer_lastname;
+
+    -- If the customer doesn't exist, insert a new record
+    IF new_customer_id IS NULL THEN
+        INSERT INTO customer (firstname, lastname, tel_no, address)
+        VALUES (customer_firstname, customer_lastname, customer_tel_no, customer_address)
+        RETURNING customer_id INTO new_customer_id;
+    END IF;
+
+    RETURN new_customer_id;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_pet(
+    pet_name TEXT,
+    pet_age INT,
+    pet_sex TEXT,
+    pet_color TEXT,
+    breed_id INT,
+    new_pet_type_id INT,
+    c_id INT
+)
+RETURNS INT AS
+$$
+DECLARE
+    new_pet_id INT;
+BEGIN
+    -- Check if the customer already exists
+    SELECT pet_id INTO new_pet_id
+    FROM pet
+    WHERE name = pet_name
+    AND customer_id = c_id;
+
+    -- If the pet doesn't exist, insert a new record
+    IF new_pet_id IS NULL THEN
+         INSERT INTO pet (name, age, sex, color, breed_id, pet_type_id, customer_id)
+          VALUES (pet_name, pet_age, pet_sex, pet_color, breed_id, new_pet_type_id, c_id)
+          RETURNING pet_id INTO new_pet_id;
+    END IF;
+
+    RETURN new_pet_id;
+END;
+$$ LANGUAGE plpgsql;
 
 -- Trigger function: update room status for walk-in booking
 create or replace function change_room_status()
