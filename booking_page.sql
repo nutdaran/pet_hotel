@@ -74,61 +74,6 @@ BEGIN
   COMMIT;
 END $$;
 
-
--- Call a procedure by using dummy data
-CALL make_booking(
-  'Lalisa',           -- customer_firstname
-  'Manobal',          -- customer_lastname
-  '0900000000',       -- customer_tel_no
-  'South Korea 999',  -- customer_address
-  'Leo',              -- pet_name
-  5,                  -- pet_age
-  'M',                -- pet_sex
-  'brown',            -- pet_color
-  6,                  -- breed_id
-  1,                  -- new_pet_type_id
-  '2024-03-23',       -- check_in_date
-  '2024-03-27',       -- check_out_date
-  2,                  -- new_room_type_id
-  1                   -- new_branch_id
-);
-
-
-CALL make_booking(
-  'Opal',             -- customer_firstname
-  'Somsongkul',       -- customer_lastname
-  '0000000000',       -- customer_tel_no
-  'BKK',              -- customer_address
-  'MheePooh',         -- pet_name
-  8,                  -- pet_age
-  'F',                -- pet_sex
-  'orange',           -- pet_color
-  17,                 -- breed_id
-  3,                  -- new_pet_type_id
-  '2024-04-05',       -- check_in_date
-  '2024-04-13',       -- check_out_date
-  6,                  -- new_room_type_id
-  2                   -- new_branch_id
-);
-
--- same customer but new pet
-CALL make_booking(
-  'Opal',             -- customer_firstname
-  'Somsongkul',       -- customer_lastname
-  '0000000000',       -- customer_tel_no
-  'BKK',              -- customer_address
-  'Mali',         -- pet_name
-  3,                  -- pet_age
-  'F',                -- pet_sex
-  'black',           -- pet_color
-  11,                 -- breed_id
-  2,                  -- new_pet_type_id
-  '2024-04-05',       -- check_in_date
-  '2024-04-13',       -- check_out_date
-  3,                  -- new_room_type_id
-  1                   -- new_branch_id
-);
-
 CREATE OR REPLACE FUNCTION insert_customer(
     customer_firstname TEXT,
     customer_lastname TEXT,
@@ -231,3 +176,86 @@ create trigger add_walkin_booking_booking_status
     for each row
     execute procedure walkin_booking_status();
 
+-- Check the available rooms during that period before insert new booking and return a table of available room for user to book
+CREATE OR REPLACE FUNCTION get_available_rooms(branch INT, check_in DATE, check_out DATE, pet_type INT)
+RETURNS TABLE(room_id INT, room_num CHAR(3)) AS
+    $$
+    BEGIN
+        RETURN QUERY
+        SELECT r.room_id, r.room_num
+        FROM room r
+        JOIN room_type rt ON r.room_type_id = rt.room_type_id
+        WHERE r.branch_id = branch
+        AND rt.pet_type_id = pet_type
+        AND NOT EXISTS (
+            SELECT 1
+            FROM booking b
+            WHERE r.room_id = b.room_id
+            AND (
+                (check_in BETWEEN b.check_in_date AND b.check_out_date)
+                OR (check_out BETWEEN b.check_in_date AND b.check_out_date)
+                OR (check_in <= b.check_in_date AND check_out >= b.check_out_date)
+            )
+        );
+
+        IF NOT FOUND THEN
+            RAISE NOTICE 'No available rooms for the specified date range';
+        END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+
+select * from get_available_rooms(1,'2024-03-25','2024-03-26',2);
+
+-- Call a procedure by using dummy data
+CALL make_booking(
+  'Lalisa',           -- customer_firstname
+  'Manobal',          -- customer_lastname
+  '0900000000',       -- customer_tel_no
+  'South Korea 999',  -- customer_address
+  'Leo',              -- pet_name
+  5,                  -- pet_age
+  'M',                -- pet_sex
+  'brown',            -- pet_color
+  6,                  -- breed_id
+  1,                  -- new_pet_type_id
+  '2024-03-23',       -- check_in_date
+  '2024-03-27',       -- check_out_date
+  2,                  -- new_room_type_id
+  1                   -- new_branch_id
+);
+
+
+CALL make_booking(
+  'Opal',             -- customer_firstname
+  'Somsongkul',       -- customer_lastname
+  '0000000000',       -- customer_tel_no
+  'BKK',              -- customer_address
+  'MheePooh',         -- pet_name
+  8,                  -- pet_age
+  'F',                -- pet_sex
+  'orange',           -- pet_color
+  17,                 -- breed_id
+  3,                  -- new_pet_type_id
+  '2024-04-05',       -- check_in_date
+  '2024-04-13',       -- check_out_date
+  6,                  -- new_room_type_id
+  2                   -- new_branch_id
+);
+
+-- same customer but new pet
+CALL make_booking(
+  'Opal',             -- customer_firstname
+  'Somsongkul',       -- customer_lastname
+  '0000000000',       -- customer_tel_no
+  'BKK',              -- customer_address
+  'Mali',         -- pet_name
+  3,                  -- pet_age
+  'F',                -- pet_sex
+  'black',           -- pet_color
+  11,                 -- breed_id
+  2,                  -- new_pet_type_id
+  '2024-04-05',       -- check_in_date
+  '2024-04-13',       -- check_out_date
+  3,                  -- new_room_type_id
+  1                   -- new_branch_id
+);
