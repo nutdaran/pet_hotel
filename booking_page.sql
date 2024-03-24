@@ -204,7 +204,7 @@ RETURNS TABLE(room_id INT, room_num CHAR(3)) AS
     END;
     $$ LANGUAGE plpgsql;
 
-select * from get_available_rooms(1,'2024-03-25','2024-03-26',2);
+select * from get_available_rooms(1,'2024-03-25','2024-03-26',3); --Exotic
 
 -- Call a procedure by using dummy data
 CALL make_booking(
