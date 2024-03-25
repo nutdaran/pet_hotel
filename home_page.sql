@@ -89,3 +89,7 @@ $$ LANGUAGE plpgsql;
 
 -- Run a function search
 SELECT * FROM search('678');
+
+-- Add new branch
+INSERT INTO branch (branch_name, location)
+VALUES ('Branch003','Phraram9, Bangkok');

@@ -176,7 +176,7 @@ create trigger add_walkin_booking_booking_status
     for each row
     execute procedure walkin_booking_status();
 
--- Check the available rooms during that period before insert new booking and return a table of available room for user to book
+-- List all available room from given pet_type, check-in date, and check-out date in the branch
 CREATE OR REPLACE FUNCTION get_available_rooms(branch INT, check_in DATE, check_out DATE, pet_type INT)
 RETURNS TABLE(room_id INT, room_num CHAR(3)) AS
     $$
@@ -205,6 +205,12 @@ RETURNS TABLE(room_id INT, room_num CHAR(3)) AS
     $$ LANGUAGE plpgsql;
 
 select * from get_available_rooms(1,'2024-03-25','2024-03-26',3); --Exotic
+
+-- get price from selected room
+SELECT rt.price
+        FROM room_type rt
+        JOIN room r ON rt.room_type_id = r.room_type_id
+    where r.room_id = 5;
 
 -- Call a procedure by using dummy data
 CALL make_booking(
