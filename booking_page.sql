@@ -212,6 +212,20 @@ SELECT rt.price
         JOIN room r ON rt.room_type_id = r.room_type_id
     where r.room_id = 5;
 
+-- get  total price from selected room multiplied by total dates
+WITH room_info AS (
+    SELECT rt.price as room_price FROM room_type rt
+    JOIN room r ON rt.room_type_id = r.room_type_id
+    where r.room_id = 5
+),
+total_days AS (
+    SELECT DATE_PART('day', '2024-03-28'::DATE) - DATE_PART('day', '2024-03-25'::DATE) + 1 AS total_days
+)
+SELECT 
+    room_price * total_days AS total_price
+FROM 
+    room_info, total_days;
+
 -- Call a procedure by using dummy data
 CALL make_booking(
   'Lalisa',           -- customer_firstname
@@ -263,5 +277,23 @@ CALL make_booking(
   '2024-04-05',       -- check_in_date
   '2024-04-13',       -- check_out_date
   3,                  -- new_room_type_id
+  1                   -- new_branch_id
+);
+
+-- same customer but new pet (check-in today)
+CALL make_booking(
+  'Opal',             -- customer_firstname
+  'Somsongkul',       -- customer_lastname
+  '0000000000',       -- customer_tel_no
+  'BKK',              -- customer_address
+  'Cocoa',         -- pet_name
+  6,                  -- pet_age
+  'M',                -- pet_sex
+  'White',           -- pet_color
+  8,                 -- breed_id
+  2,                  -- new_pet_type_id
+  '2024-03-25',       -- check_in_date
+  '2024-03-27',       -- check_out_date
+  5,                  -- new_room_type_id
   1                   -- new_branch_id
 );

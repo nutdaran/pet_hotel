@@ -71,7 +71,7 @@ VALUES ('101','Occupied', 1, 1),
 	('121','Available', 1, 1),
 	('102','Available', 2, 1),
 	('201','Available', 3, 1),
-	('202','Occupied', 4, 1),
+	('202','Available', 4, 1),
 	('203','Available', 5, 1),
 	('301','Occupied', 6, 1),
 	('302','Occupied', 7, 1),
@@ -87,10 +87,10 @@ VALUES ('101','Occupied', 1, 1),
 -- Insert the booking table 
 INSERT INTO booking (booking_ref, check_in_date, check_out_date, price, booking_status, customer_id, pet_id, branch_id, room_id)
 VALUES ('A345678', '2024-03-10', '2024-03-15', 300.00, 'Finished',7, 8, 1, 1), -- Nut, Sonya
-       ('K678901', '2024-03-11', '2024-03-12', 150.00, 'Finished', 3, 3, 1, 6), -- Chutimon, Puk pik
-       ('A123456', '2024-03-25', '2024-03-28', 300.00, 'Arrived', 6, 7, 1, 6), -- Opal, Milo
-       ('A234567', '2024-03-27', '2024-03-28', 50.00, 'Arrived', 7,8, 1, 1), -- Nut, Sonya
-       ('A124354', '2024-03-25', '2024-03-2ึ7', 180.00, 'Arrived', 2, 3, 1, 7), -- Daran, Khagi
-       ('A124567', '2024-03-28', '2024-03-30', 180.00, 'Pending', 1, 1, 1, 3), -- Pawara, MoohP
-       ('A234678', '2024-03-28', '2024-03-31', 240.00, 'Pending', 2, 3, 1, 7), -- Daran, Khagi
-       ('J876432', '2024-04-02','2024-04-05', 240.00, 'Pending', 4, 5, 2, 10); -- Himpor, Inging, B2
+       ('K678901', '2024-03-11', '2024-03-12', 150.00, 'Finished', 3, 3, 1, 8), -- Chutimon, Puk pik
+       ('A123456', '2024-03-25', '2024-03-28', 300.00, 'Arrived', 6, 7, 1, 8), -- Opal, Milo
+       ('A234567', '2024-03-25', '2024-03-28', 50.00, 'Arrived', 7,8, 1, 1), -- Nut, Sonya
+       ('A124354', '2024-03-25', '2024-03-27', 180.00, 'Arrived', 2, 3, 1, 9), -- Daran, Khagi
+       ('A124567', '2024-03-28', '2024-03-30', 180.00, 'Pending', 1, 1, 1, 5), -- Pawara, MoohP
+       ('A234678', '2024-03-28', '2024-03-31', 240.00, 'Pending', 2, 3, 1, 9), -- Daran, Khagi
+       ('J876432', '2024-04-02','2024-04-05', 240.00, 'Pending', 4, 5, 2, 13); -- Himpor, Inging, B2
