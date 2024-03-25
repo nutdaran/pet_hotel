@@ -35,15 +35,6 @@ WHERE b.check_out_date = (
     WHERE check_out_date >= '2024-03-28' -- Assume today is 28-03-2024
 ) AND b.booking_status = 'Arrived' AND b.branch_id = 1; 
 
--- create a function to change booking status
-create or replace function change_booking_status(ref TEXT, new_status TEXT)
-returns void as
-$$
-    update booking b
-    set booking_status = new_status
-    where b.booking_ref = ref
-$$ LANGUAGE SQL;
-
 -- procedure
 create or replace procedure change_booking_status(ref TEXT, new_status TEXT) as
 $$
@@ -53,6 +44,32 @@ $$
         where b.booking_ref = ref;
     end;
 $$ language PLPGSQL;
+
+-- Trigger function: update room status for booking
+CREATE OR REPLACE FUNCTION update_room_status()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.booking_status = 'Arrived' THEN
+        UPDATE room
+        SET status = 'Occupied'
+        WHERE room_id = NEW.room_id;
+    ELSIF NEW.booking_status = 'Finished' THEN
+        UPDATE room
+        SET status = 'Available'
+        WHERE room_id = NEW.room_id;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Drop trigger if it exists
+DROP TRIGGER IF EXISTS booking_status_trigger ON booking;
+
+-- Create trigger to invoke the trigger function upon changes in booking table
+CREATE TRIGGER booking_status_trigger
+AFTER UPDATE OF booking_status ON booking
+FOR EACH ROW
+EXECUTE FUNCTION update_room_status();
 
 -- Update Expected Arrival Booking status: "Pending" -> "Arrived"
 call change_booking_status('A124567','Arrived');
