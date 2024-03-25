@@ -74,16 +74,16 @@ EXECUTE FUNCTION update_room_status();
 -- Update Expected Arrival Booking status: "Pending" -> "Arrived"
 call change_booking_status('A124567','Arrived');
 
-select * from booking where booking_ref='A124567';
-select change_booking_status('A124567','Arrived');
-select * from booking where booking_ref='A124567';
+-- Check room status
+select b.*, r.status from booking b
+	inner join room r on b.room_id = r.room_id where booking_ref='A124567';
 
 -- Update Expect Departure Booking status: "Arrived" -> Finished
-call change_booking_status('A123456','Finished');
+call change_booking_status('A124567','Finished');
 
-select * from booking where booking_ref='A123456';
-select change_booking_status('A123456','Finished');
-select * from booking where booking_ref='A123456';
+-- Check room status
+select b.*, r.status from booking b
+	inner join room r on b.room_id = r.room_id where booking_ref='A124567';
 
 -- Create a function to search Booking Ref./ Pet Name/ Owner Name 
 CREATE OR REPLACE FUNCTION search(text TEXT)
