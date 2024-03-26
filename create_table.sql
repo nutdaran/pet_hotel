@@ -96,3 +96,33 @@ CREATE TABLE booking
   FOREIGN KEY (branch_id) REFERENCES branch(branch_id),
   FOREIGN KEY (room_id) REFERENCES room(room_id)
 );
+
+-- ADD INDEX
+
+-- Set index on room_num column in room table
+create index idx_room_num on
+    room (room_num);
+
+-- Set index on room_type_id and branch column in room table
+create index idx_rt_branch on
+    room (room_type_id, branch_id);
+
+-- Set index on firstname column in customer table
+create index idx_customer_name on
+    customer (firstname);
+
+-- Set index on name and customer_is column in pet table
+create index idx_pet_owner on
+    pet (name, customer_id);
+
+-- Set index on booking_ref column in booking table
+create index idx_booking_ref on
+    booking (booking_ref);
+
+-- Set index on check_in_date and branch_id column in booking table
+create index idx_check_in on
+    booking (check_in_date, branch_id);
+
+-- Set index on check_out_date and branch_id column in booking table
+create  index idx_check_out on
+    booking (check_out_date, branch_id);
