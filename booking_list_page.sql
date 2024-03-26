@@ -2,7 +2,7 @@ DROP VIEW IF EXISTS current_booking_list;
 
 CREATE VIEW current_booking_list AS
 SELECT b.booking_ref, c.firstname as owner_name, p.name as pet_name,
-            b.check_in_date, b.check_out_date,  b.price as total_price
+            b.check_in_date, b.check_out_date, b.booking_status as status, b.price as total_price
             from booking b
             inner join public.pet p on p.pet_id = b.pet_id
             inner join public.customer c on c.customer_id = b.customer_id
@@ -29,6 +29,10 @@ SELECT  * FROM current_booking_list ORDER BY check_in_date DESC;
 -- sort Check-out date
 SELECT  * FROM current_booking_list ORDER BY check_out_date ASC;
 SELECT  * FROM current_booking_list ORDER BY check_out_date DESC;
+
+-- sort status
+SELECT  * FROM current_booking_list ORDER BY status ASC;
+SELECT  * FROM current_booking_list ORDER BY status DESC;
 
 -- sort Total price
 SELECT  * FROM current_booking_list ORDER BY total_price ASC;
