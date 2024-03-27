@@ -10,6 +10,10 @@ SELECT p.name, pt.pet_type_name  FROM pet p
 INNER JOIN customer c ON p.customer_id = c.customer_id
 INNER JOIN pet_type pt ON p.pet_type_id = pt.pet_type_id
 	WHERE p.customer_id = 1 -- Assume we choose customer_id 1
+	
+-- To add a pet
+INSERT INTO pet (name, age, sex, color, breed_id, pet_type_id, customer_id )
+VALUES ('Yelly',4, 'F', 'Brown',8,2,1);
 
 -- Edit pet's information
 update pet 
